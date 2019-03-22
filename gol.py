@@ -4,6 +4,7 @@
 #Import libraries
 import numpy as np
 import os
+import json
 import time
 
 #Global variables
@@ -19,7 +20,8 @@ def main():
     global array_size_x
     global array_size_y
     #Create the empty array
-    array_size = user_input()
+    #array_size = user_input()
+    array_size, delay = read_config()
     array_size_x = int(array_size[0])
     array_size_y = int(array_size[1])
     gol_array = np.zeros((array_size_y, array_size_x)).astype(int)
@@ -123,15 +125,43 @@ def conditions(array_copy, changes, x, y):
         changes[y,x] = 1
     return changes
 
-#Write config to json file
-def json():
+#Dump config
+def dump_config(array_size, delay):
+    config = {}
+    config["array"] = []
+    config["array"].append({
+    "array_size_x" : array_size[0],
+    "array_size_y" : array_size[1],
+    })
+    config["delay"] = []
+    config["delay"].append({
+    "delay" : delay,
+    })
+    print("Writing to config file")
+    with open('config.json', 'w') as output:
+        json.dump(config, output)
+
+#Read config to json file
+def read_config():
+    config = {}
+    with open("config.json") as config:
+        file = json.load(config)
+        for data in file["array"]:
+            size_x = data["array_size_x"]
+            size_y = data["array_size_y"]
+        for data in file["delay"]:
+            delay = data["delay"]
+    print("Reading from config file")
+    print("sizes : %s and %s" %(size_x, size_y))
+    print("delay : %.2f" %(delay))
+    return (size_x, size_y), delay
 
 #The game of life
-def game_of_life(array):
+def game_of_life(array, delay = 0.1):
     iter = 0
     while True:
         changes = array.copy()
-        time.sleep(0.1)
+        time.sleep(delay)
         for x in range(array_size_x):
             for y in range(array_size_y):
                 change = conditions(array.copy(), changes, x, y)
@@ -146,4 +176,5 @@ def game_of_life(array):
 
 #Run
 if __name__ == "__main__":
+    dump_config(user_input(), 0.05)
     main()
