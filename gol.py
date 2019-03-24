@@ -1,4 +1,5 @@
 #Guining Pertin
+#23-03-19
 #Conway's Game of Life using standard python library and numpy
 
 #Import libraries
@@ -7,23 +8,16 @@ import os
 import json
 import time
 
-#Global variables
-array_size_x = 0
-array_size_y = 0
-
 #Main
 def main():
     #Initialize
     print("Welcome to Conway's Game of Life!")
-    #Ask user for array size
-    #Set as global variables
-    global array_size_x
-    global array_size_y
-    #Create the empty array
+    #Ask user for array size or read predefined size
     #array_size = user_input()
     array_size, delay = read_config()
     array_size_x = int(array_size[0])
     array_size_y = int(array_size[1])
+    #Initialize array of given size
     gol_array = np.zeros((array_size_y, array_size_x)).astype(int)
     #Show grid
     draw_grid(gol_array)
@@ -32,7 +26,7 @@ def main():
     #Play Game of Life
     print("Playing Game of Life")
     time.sleep(1)
-    game_of_life(gol_array)
+    game_of_life(gol_array, delay)
 
 #Get user input for array dimensions
 def user_input():
@@ -41,7 +35,7 @@ def user_input():
     while True:
         try:
             array_size = input("Enter array dimensions: ").split()
-            #Check errors in data
+            #Check if it can be converted to int
             int(array_size[0])
             int(array_size[1])
             break
@@ -51,6 +45,8 @@ def user_input():
 
 #Basic grid
 def draw_grid(array):
+    array_size_x = len(array[0])
+    array_size_y = len(array)
     os.system('cls' if os.name == 'nt' else 'clear')
     separator = "--- " * array_size_y
     for y in range(2*array_size_x):
@@ -67,6 +63,8 @@ def draw_grid(array):
 
 #Get user_input for initial points
 def start_points(array):
+    array_size_x = len(array[0])
+    array_size_y = len(array)
     while True:
         print("Select points to start off with(indexing at 1,1)")
         print("Enter done to complete")
@@ -88,7 +86,9 @@ def start_points(array):
     return array
 
 #Conditions
-def conditions(array_copy, changes, x, y):
+def conditions(array, changes, x, y):
+    array_size_x = len(array[0])
+    array_size_y = len(array)
     top = [y-1,x]
     bottom = [y+1,x]
     left = [y,x-1]
@@ -108,20 +108,20 @@ def conditions(array_copy, changes, x, y):
         if (check[0] < 0): check[0] = array_size_x - 1
         if (check[1] < 0): check[1] = array_size_y - 1
         #Otherwise, check
-        if array_copy[check[0],check[1]] == 1:
+        if array[check[0],check[1]] == 1:
             no_neighbours += 1
     #Game of life conditions
     #1: live cell with less than two neighbours dies
-    if (array_copy[y,x] == 1) and (no_neighbours < 2):
+    if (array[y,x] == 1) and (no_neighbours < 2):
         changes[y,x] = 0
     #2: live cell with two or three neighbours lives, return same array
-    if (array_copy[y,x] == 1) and (no_neighbours ==2 or no_neighbours == 3):
+    if (array[y,x] == 1) and (no_neighbours ==2 or no_neighbours == 3):
         return changes
     #3: live cell with more than three neighbours dies
-    if (array_copy[y,x] == 1) and (no_neighbours > 3):
+    if (array[y,x] == 1) and (no_neighbours > 3):
         changes[y,x] = 0
     #4: dead cell with exactly three live neighbours, becomes live
-    if (array_copy[y,x] == 0) and (no_neighbours == 3):
+    if (array[y,x] == 0) and (no_neighbours == 3):
         changes[y,x] = 1
     return changes
 
@@ -158,6 +158,8 @@ def read_config():
 
 #The game of life
 def game_of_life(array, delay = 0.1):
+    array_size_x = len(array[0])
+    array_size_y = len(array)
     iter = 0
     while True:
         changes = array.copy()
@@ -176,5 +178,7 @@ def game_of_life(array, delay = 0.1):
 
 #Run
 if __name__ == "__main__":
-    dump_config(user_input(), 0.05)
+    #Dump the user input dimensions
+    #Comment it out to use previous case
+    #dump_config(user_input(), 0.05)
     main()
